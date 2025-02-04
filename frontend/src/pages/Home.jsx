@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Benefits from "../components/Benefits";
+import Footer from "../components/Footer";
 // import {Heroimage} from "../assets/home1.png";
 import Navbar from "../components/Navbar";
 
@@ -12,6 +13,7 @@ const Home = () => {
                 <img src='/home1.png' alt="" className="w-full w-[2000px] h-[600px] mx-auto"/>
             </div>
             <Benefits />
+            <Footer />
         </div>
             
     )
