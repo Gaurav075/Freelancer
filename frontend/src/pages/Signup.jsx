@@ -1,4 +1,5 @@
 import { useState } from "react";
+import SkillInput from "../components/Skills";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 const inputField = "w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700 focus:ring-2 focus:ring-blue-400";
 const btnPrimary = "w-full bg-blue-600 text-black font-bold py-2 rounded-lg hover:bg-blue-700 transition";
@@ -129,10 +130,11 @@ const Signup = () => {
         {step === 2 && (
           <form onSubmit={handleSignup} className="space-y-4 mt-4">
             {/* Skills */}
-            <input type="text" name="skills" placeholder="Skills" className={inputField} value={formData.skills} onChange={handleChange} />
+            {/* <input type="text" name="skills" placeholder="Skills" className={inputField} value={formData.skills} onChange={handleChange} /> */}
+            <SkillInput/>
 
             {/* Portfolio */}
-            <input type="text" name="portfolio" placeholder="Portfolio (Links to projects)" className={inputField} value={formData.portfolio} onChange={handleChange} />
+            {/* <input type="text" name="portfolio" placeholder="Portfolio (Links to projects)" className={inputField} value={formData.portfolio} onChange={handleChange} /> */}
 
             {/* Resume */}
            <div className="flex flex-col items-center">

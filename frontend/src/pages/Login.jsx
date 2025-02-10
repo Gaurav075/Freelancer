@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import {Signup} from "./Signup";
+// import {Signup} from "./Signup";
 
 const Login = () => {
   const [email, setEmail] = useState("");
