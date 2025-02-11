@@ -10,7 +10,7 @@ const upload = multer({dest: 'uploads/'});
 
 router.post("/signup",upload.fields([{name:'profilePicture'},{name:'resume'}]),async(req,res)=>{
     try{
-        const {firstName,lastName,email,username,password,phoneNumber,skills,portfolio} = req.body;
+        const {firstName,lastName,email,username,password,phoneNumber,skills} = req.body;
         const existingUser = await User.findOne({email})
         if (existingUser) return res.status(400).json({ message: "User already exists" });
 

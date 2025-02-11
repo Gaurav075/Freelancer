@@ -1,5 +1,5 @@
 require("dotenv").config();
-const {connectDB} = require("./db/index.js");
+const connectDB = require("./db/index.js");
 // import authRoutes from "./routes/authRoutes";
 const express = require("express");
 const cors = require("cors");
@@ -12,7 +12,7 @@ app.use(cors());
 // connectDB()
 connectDB()
 .then(()=>{
-    app.listen(process.env.PORT || 8000,()=>{
+    app.listen(process.env.PORT || 5001,()=>{
         console.log(`Server is running at port:${process.env.PORT}`);
         
     })
@@ -24,8 +24,8 @@ connectDB()
 
 app.use("/api/auth", require("./routes/authRoutes.js"));
 
-const PORT = process.env.PORT || 5000;
+// const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-})
+// app.listen(PORT, () => {
+//     console.log(`Server is running on port ${PORT}`);
+// })
