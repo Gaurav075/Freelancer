@@ -67,20 +67,35 @@ const Signup = () => {
     console.log("Step updated to:", step); // Debugging log
   };
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
-    const { skills, portfolio, resume, profilePicture } = formData;
-
-    if (!skills || !portfolio || !resume || !profilePicture) {
-      setError("Please fill in all required freelancer profile details.");
-      return;
-    }
-
+    setError("");
     setLoading(true);
-    setTimeout(() => {
-      console.log("Signup completed with:", formData);
-      setLoading(false);
-    }, 2000);
+  
+    // Creating FormData to send files and text fields
+    const formDataObj = new FormData();
+    Object.keys(formData).forEach((key) => formDataObj.append(key, formData[key]));
+  
+    try {
+      const response = await fetch("https://animated-engine-69v4xxvpw45355j9-5001.app.github.dev/api/auth/signup", {
+        method: "POST",
+        body: formDataObj, // Sending form data
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+  
+      console.log("✅ Signup Successful:", data);
+      alert("Signup successful!");
+    } catch (err) {
+      console.error("❌ Signup Error:", err.message);
+      setError(err.message);
+    }
+  
+    setLoading(false);
   };
 
   return (

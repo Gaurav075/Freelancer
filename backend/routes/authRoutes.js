@@ -8,55 +8,87 @@ const multer = require("multer");
 const router = express.Router();
 const upload = multer({dest: 'uploads/'});
 
-router.post("/signup",upload.fields([{name:'profilePicture'},{name:'resume'}]),async(req,res)=>{
-    try{
-        const {firstName,lastName,email,username,password,phoneNumber,skills} = req.body;
-        const existingUser = await User.findOne({email})
-        if (existingUser) return res.status(400).json({ message: "User already exists" });
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const profilepicture = require.files.profilepicture ? await uploadtoCloudinary(req.files.profilepicture[0].path) : "";
-        const resume = require.files.resume ? await uploadtoCloudinary(req.files.resume[0].path) : "";
-
-        const newUser = new User({
-            firstName,
-            lastName,
-            email,
-            username,
-            password: hashedPassword,
-            phoneNumber,
-            skills:JSON.parse(skills),
-            profilePicture: profilepicture,
-            resume,
-        })
-
-        await newUser.save();
-        res.status(201).json({ message: "User registered successfully" });
-
-    }catch(err){
-        res.status(500).json({ message: "Something went wrong" });
+router.post("/signup", upload.fields([{ name: "profilePicture" }, { name: "resume" }]), async (req, res) => {
+    try {
+      console.log("🟢 Signup Request Received:", req.body);
+      console.log("🟢 Uploaded Files:", req.files);
+  
+      const { firstName, lastName, email, username, password, phoneNumber, skills } = req.body;
+  
+      // Check if user exists
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        console.log("❌ User already exists!");
+        return res.status(400).json({ message: "User already exists" });
+      }
+  
+      // Hash Password
+      const hashedPassword = await bcrypt.hash(password, 10);
+  
+      // Upload files to Cloudinary (Check if files exist first)
+      let profilePicture = "";
+      let resume = "";
+  
+      if (req.files.profilePicture) {
+        console.log("🟢 Uploading profile picture to Cloudinary...");
+        profilePicture = await uploadtoCloudinary(req.files.profilePicture[0].path);
+      }
+  
+      if (req.files.resume) {
+        console.log("🟢 Uploading resume to Cloudinary...");
+        resume = await uploadtoCloudinary(req.files.resume[0].path);
+      }
+  
+      console.log("✅ Cloudinary Upload Successful:", { profilePicture, resume });
+  
+      // Create User
+      const newUser = new User({
+        firstName, lastName, email, username, password: hashedPassword,
+        phoneNumber, skills: JSON.parse(skills),
+        profilePicture, resume,
+      });
+  
+      await newUser.save();
+      console.log("✅ User Registered Successfully!");
+      res.status(201).json({ message: "User registered successfully" });
+  
+    } catch (err) {
+      console.error("🔥 Signup Error:", err);
+      res.status(500).json({ message: "Signup failed", error: err.message });
     }
-})
+  });
 
 // login route
-router.post("/login",async(req,res)=>{
-    try{
-        const{email,password}=req.body
-        const User = await User.findOne({email})
-        if(!User) return res.status(404).json({message: "User does not exist"})
-
-         // Verify Password
-    const isMatch = await bcrypt.compare(password, User.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
-
-    const token = jwt.sign({userId:User._id},process.env.JWT_SECRET,{expiresIn:"7d"})
-    res.json({token,User})
-    
-    }catch(err){
-        res.status(500).json({ message: "Something went wrong" });
+router.post("/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+  
+      console.log("🔍 Checking login for:", email); // Debugging
+      const user = await User.findOne({ email });
+  
+      if (!user) {
+        console.log("❌ User not found!");
+        return res.status(400).json({ message: "User does not exist" });
+      }
+  
+      console.log("✅ User found, checking password...");
+      const isMatch = await bcrypt.compare(password, user.password);
+  
+      if (!isMatch) {
+        console.log("❌ Password does not match!");
+        return res.status(400).json({ message: "Invalid credentials" });
+      }
+  
+      console.log("✅ Password matched, generating token...");
+      const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+  
+      res.json({ token, user });
+  
+    } catch (err) {
+      console.error("🔥 Login Error:", err);
+      res.status(500).json({ message: "Internal server error" });
     }
-
-})
+  });
+  
 
 module.exports = router;

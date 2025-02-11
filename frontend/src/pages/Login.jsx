@@ -10,21 +10,39 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-    if (!email || !password) {
-      setError("Please fill in all fields.");
-      return;
-    }
-
     setLoading(true);
-
-    setTimeout(() => {
-      console.log("Logging in with:", { email, password });
-      setLoading(false);
-    }, 2000);
+  
+    try {
+      const response = await fetch("https://animated-engine-69v4xxvpw45355j9-5001.app.github.dev/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }), // Sending email & password
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+  
+      console.log("✅ Login Successful:", data);
+      alert("Login successful!");
+  
+      // Store the JWT token (optional)
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+  
+    } catch (err) {
+      console.error("❌ Login Error:", err.message);
+      setError(err.message);
+    }
+  
+    setLoading(false);
   };
+  
 
   return (
     <div className="flex justify-center items-center ">
