@@ -19,21 +19,28 @@ const Login = () => {
       const response = await fetch("https://animated-engine-69v4xxvpw45355j9-5001.app.github.dev/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }), // Sending email & password
+        body: JSON.stringify({ email, password }),
+        credentials: "include"
       });
   
-      const data = await response.json();
+      // Check content type before parsing JSON
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await response.json();
   
-      if (!response.ok) {
-        throw new Error(data.message);
+        if (!response.ok) {
+          throw new Error(data.message || "Login failed");
+        }
+  
+        console.log("✅ Login Successful:", data);
+        alert("Login successful!");
+  
+        // Store the JWT token
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+      } else {
+        throw new Error("Server returned an unexpected response");
       }
-  
-      console.log("✅ Login Successful:", data);
-      alert("Login successful!");
-  
-      // Store the JWT token (optional)
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
   
     } catch (err) {
       console.error("❌ Login Error:", err.message);
@@ -42,7 +49,6 @@ const Login = () => {
   
     setLoading(false);
   };
-  
 
   return (
     <div className="flex justify-center items-center ">
@@ -110,3 +116,5 @@ const Login = () => {
 };
 
 export default Login;
+
+
