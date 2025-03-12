@@ -10,6 +10,7 @@ import AccountTypeSelection from './pages/AccountTypeSelection'
 import FreelancerProfileSetup from './pages/FreelancerProfileSetup'
 import CreateGig from './pages/CreateGig'
 import Dashboard from './pages/Dashboard'
+import Chat from './pages/Chat'
 
 function App() {
 
@@ -24,6 +25,7 @@ function App() {
           <Route path='/setup-profile' element={<FreelancerProfileSetup/>}/>
           <Route path='/create-gig' element={<CreateGig/>}/>
           <Route path='/dashboard' element={<Dashboard/>}/>
+          <Route path='/chat' element={<Chat/>}/>
         </Routes>
       </Router>
       
