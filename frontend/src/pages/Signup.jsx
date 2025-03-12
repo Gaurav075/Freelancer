@@ -1,153 +1,112 @@
-import { useState } from "react";
-import SkillInput from "../components/Skills";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-
-const inputField = "w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700 focus:ring-2 focus:ring-blue-400";
-const btnPrimary = "w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 transition";
-const eyeIcon = "absolute top-2 right-3 text-gray-600 bg-transparent";
+import { useState } from 'react';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Signup = () => {
-  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    username: "",
-    password: "",
-    confirmPassword: "",
-    phoneNumber: "",
-    skills: [],
-    resume: null,
-    profilePicture: null,
+    name: '',
+    username: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: ''
   });
-
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const validateEmail = (email) => {
+    return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+  };
+
+  const validatePhone = (phone) => {
+    return /^[0-9]{10}$/.test(phone);
+  };
+
+  const validatePassword = (password) => {
+    return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password);
+  };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: files[0] }));
-  };
-
-  const handleNext = (e) => {
-    e.preventDefault();
-    const { firstName, lastName, email, username, password, confirmPassword, phoneNumber } = formData;
-
-    if (!firstName || !lastName || !email || !username || !password || !confirmPassword || !phoneNumber) {
-      setError("Please fill in all required fields.");
-      return;
-    }
-
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const phoneRegex = /^[0-9]{10}$/;
-    if (!emailRegex.test(email)) {
-      setError("Invalid email address.");
-      return;
-    }
-    if (!phoneRegex.test(phoneNumber)) {
-      setError("Invalid phone number.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-
-    setError("");
-    setStep(2);
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    setError("");
+    setError('');
     setLoading(true);
-  
-    const formDataObj = new FormData();
-    Object.keys(formData).forEach((key) => {
-      if (key === "skills") {
-        formDataObj.append(key, JSON.stringify(formData.skills));  // ✅ Send skills as JSON string
-      } else {
-        formDataObj.append(key, formData[key]);
-      }
-    });
-  
+
+    if (!validateEmail(formData.email)) {
+      setError('Invalid email address');
+      setLoading(false);
+      return;
+    }
+
+    if (!validatePhone(formData.phone)) {
+      setError('Invalid phone number (must be 10 digits)');
+      setLoading(false);
+      return;
+    }
+
+    if (!validatePassword(formData.password)) {
+      setError('Password must be at least 8 characters long and contain both letters and numbers');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetch("https://animated-engine-69v4xxvpw45355j9-5001.app.github.dev/api/auth/signup", {
-        method: "POST",
-        body: formDataObj,
+      const response = await fetch('https://your-api-url/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       });
-  
-      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error(data.message || "Signup failed");
+        throw new Error('Signup failed');
       }
-  
-      console.log("✅ Signup Successful:", data);
-      alert("Signup successful!");
+
+      alert('Signup successful!');
     } catch (err) {
-      console.error("❌ Signup Error:", err.message);
       setError(err.message);
     }
-  
+
     setLoading(false);
   };
-  
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-blue-600">
-      <div className="bg-white p-8 rounded-xl shadow-2xl w-96 text-gray-800">
-        <h2 className="text-3xl font-bold text-center text-blue-600">Sign Up</h2>
+    <div className="h-screen flex items-center justify-center overflow-hidden relative">
+      <div className="fixed inset-0 bg-gradient-to-r from-blue-500 to-blue-800 -z-10"></div>
 
-        {error && <p className="text-red-500 text-sm text-center mt-2">{error}</p>}
+      <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md text-gray-800 overflow-hidden">
+        <h2 className="text-4xl font-extrabold text-center text-blue-600 mb-6">Create Account</h2>
 
-        {step === 1 && (
-          <form onSubmit={handleNext} className="space-y-4 mt-4">
-            <input type="text" name="firstName" placeholder="First Name" className={inputField} value={formData.firstName} onChange={handleChange} />
-            <input type="text" name="lastName" placeholder="Last Name" className={inputField} value={formData.lastName} onChange={handleChange} />
-            <input type="email" name="email" placeholder="Email Address" className={inputField} value={formData.email} onChange={handleChange} />
-            <input type="text" name="username" placeholder="Username" className={inputField} value={formData.username} onChange={handleChange} />
-            <input type="tel" name="phoneNumber" placeholder="Phone Number" className={inputField} value={formData.phoneNumber} onChange={handleChange} />
+        {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
 
-            <div className="relative">
-              <input type={showPassword ? "text" : "password"} name="password" placeholder="Password" className={inputField} value={formData.password} onChange={handleChange} />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className={eyeIcon}>{showPassword ? <FaEyeSlash /> : <FaEye />}</button>
-            </div>
-
-            <div className="relative">
-              <input type={showConfirmPassword ? "text" : "password"} name="confirmPassword" placeholder="Confirm Password" className={inputField} value={formData.confirmPassword} onChange={handleChange} />
-              <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className={eyeIcon}>{showConfirmPassword ? <FaEyeSlash /> : <FaEye />}</button>
-            </div>
-
-            <div className="mt-4">
-              <button type="submit" className={btnPrimary}>Next</button>
-            </div>
-          </form>
-        )}
-
-        {step === 2 && (
-          <form onSubmit={handleSignup} className="space-y-4 mt-4">
-            <SkillInput />
-            <label className="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 transition text-center cursor-pointer">
-              Upload Resume
-              <input type="file" name="resume" className="hidden" onChange={handleFileChange} />
-            </label>
-            <label className="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 transition text-center cursor-pointer">
-              Upload Profile Picture
-              <input type="file" name="profilePicture" className="hidden" onChange={handleFileChange} />
-            </label>
-            <div className="flex justify-between">
-              <button type="button" onClick={() => setStep(1)} className="text-blue-600 hover:underline">Back</button>
-              <button type="submit" className={btnPrimary}>{loading ? "Submitting..." : "Sign Up"}</button>
-            </div>
-          </form>
-        )}
+        <form onSubmit={handleSignup} className="space-y-4">
+          <input type="text" name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-700 transition duration-200" />
+          <input type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-700 transition duration-200" />
+          <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-700 transition duration-200" />
+          <input type="tel" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-700 transition duration-200" />
+          <div className="relative">
+            <input type={showPassword ? 'text' : 'password'} name="password" placeholder="Password" value={formData.password} onChange={handleChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-700 transition duration-200" />
+            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute top-2.5 right-4 text-gray-600 bg-transparent hover:text-blue-500 transition">
+              {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+            </button>
+          </div>
+          <input type="password" name="confirmPassword" placeholder="Confirm Password" value={formData.confirmPassword} onChange={handleChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-700 transition duration-200" />
+          <button type="button" onClick={() => navigate('/account-type')} className="w-full bg-blue-600 text-black font-bold py-2 rounded-lg hover:bg-blue-700 transition duration-200 flex justify-center items-center shadow-md hover:shadow-lg">
+            Next
+          </button>
+        </form>
+        <p className="text-sm text-center mt-4">Already have an account? <Link to="/login" className="text-blue-500 hover:underline">Login</Link></p>
       </div>
     </div>
   );
