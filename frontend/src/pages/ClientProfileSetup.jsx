@@ -43,7 +43,7 @@ const ClientProfileSetup = () => {
           </label>
           {uploadMessage && <p className="text-green-600 text-sm text-center">{uploadMessage}</p>}
 
-          <input type="text" name="fullName" placeholder="Your Full Name" value={formData.fullName} onChange={handleChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+         
 
           <input type="text" name="companyName" placeholder="Company Name (Optional)" value={formData.companyName} onChange={handleChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
 

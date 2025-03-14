@@ -2,11 +2,12 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import Gig from "../models/Gig.js";
+import nodemailer from "nodemailer";
+import sendEmail from "../utils/sendEmail.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 import dotenv from "dotenv";
 
 dotenv.config();
-
 /** ✅ Freelancer Signup Controller */
 export const signupFreelancer = async (req, res) => {
   try {
@@ -75,12 +76,11 @@ export const signupFreelancer = async (req, res) => {
   }
 };
 
+
 /** ✅ Client Signup Controller */
 export const signupClient = async (req, res) => {
   try {
-    console.log("🟢 Client Signup API Hit:", req.body);
-
-    const { name, username, email, phone, password } = req.body;
+    const { name, username, email, phone, password, companyName, businessType, workNeeded } = req.body;
 
     // ✅ Check if user exists
     const existingUser = await User.findOne({ email });
@@ -104,18 +104,18 @@ export const signupClient = async (req, res) => {
       password: hashedPassword,
       profilePicture: profilePictureUrl,
       accountType: "client",
+      companyName,
+      businessType,
+      workNeeded
     });
 
     await newUser.save();
-    
-    console.log("✅ Client Registered:", newUser);
-
     res.status(201).json({ message: "Client registered successfully", user: newUser });
   } catch (error) {
-    console.error("❌ Client Signup Error:", error);
     res.status(500).json({ message: "Client signup failed", error: error.message });
   }
 };
+
 
 /** ✅ User Login Controller */
 export const login = async (req, res) => {
@@ -141,5 +141,58 @@ export const login = async (req, res) => {
   } catch (error) {
     console.error("❌ Login Error:", error);
     res.status(500).json({ message: "Login failed", error: error.message });
+  }
+};
+// forgot-password
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // ✅ Generate Reset Token
+    const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    const resetLink = `https://animated-engine-69v4xxvpw45355j9-5001.app.github.dev/reset-password/${resetToken}`;
+    console.log("🔹 Generated Reset Link:", resetLink);
+
+    // ✅ Use sendEmail Utility
+    const subject = "Password Reset Request";
+    const html = `<p>Click <a href="${resetLink}">here</a> to reset your password.</p>`;
+
+    await sendEmail(email, subject, html);
+
+    res.status(200).json({ message: "Password reset link sent successfully" });
+  } catch (error) {
+    console.error("❌ Forgot Password Error:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+/** ✅ Reset Password Controller */
+export const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { newPassword } = req.body;
+
+    // ✅ Verify Token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(404).json({ message: "Invalid or expired token" });
+
+    // ✅ Hash New Password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.json({ message: "Password reset successful. You can now log in." });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to reset password", error: error.message });
   }
 };

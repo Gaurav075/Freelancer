@@ -1,5 +1,6 @@
 import express from "express";
 import { signupFreelancer, signupClient, login } from "../controllers/authController.js";
+import { forgotPassword, resetPassword } from "../controllers/authController.js";
 import upload from "../middleware/multerMiddleware.js"; // Import Multer Middleware
 
 const router = express.Router();
@@ -45,4 +46,6 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 export default router;

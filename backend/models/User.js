@@ -10,6 +10,11 @@ const UserSchema = new mongoose.Schema(
     profilePicture: { type: String }, // Cloudinary URL
     accountType: { type: String, enum: ["freelancer", "client"], required: true },
 
+    // ✅ Only for Clients
+  companyName: { type: String },
+  businessType: { type: String },
+  workNeeded: { type: String },
+
     // ✅ Freelancer-specific fields
     professionalTitle: { type: String },
     bio: { type: String },
