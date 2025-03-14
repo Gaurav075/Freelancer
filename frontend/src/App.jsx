@@ -11,6 +11,8 @@ import FreelancerProfileSetup from './pages/FreelancerProfileSetup'
 import CreateGig from './pages/CreateGig'
 import Dashboard from './pages/Dashboard'
 import Chat from './pages/Chat'
+import ClientProfileSetup from './pages/ClientProfileSetup'
+import ClientDashboard from './pages/ClientDashboard'
 
 function App() {
 
@@ -26,6 +28,8 @@ function App() {
           <Route path='/create-gig' element={<CreateGig/>}/>
           <Route path='/dashboard' element={<Dashboard/>}/>
           <Route path='/chat' element={<Chat/>}/>
+          <Route path='/client-profile-setup' element={<ClientProfileSetup/>}/>
+          <Route path='/client-dashboard' element={<ClientDashboard/>}/>
         </Routes>
       </Router>
       

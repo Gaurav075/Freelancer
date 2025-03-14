@@ -1,16 +1,22 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
-  firstName: String,
-  lastName: String,
-  email: { type: String, unique: true },
-  username: { type: String, unique: true },
-  password: String,
-  phoneNumber: String,
-  skills: [String],
-  portfolio: String,
-  profilePicture: String,
-  resume: String,
-}, { timestamps: true });
+const UserSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    username: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true },
+    phone: { type: String, required: true },
+    password: { type: String, required: true },
+    profilePicture: { type: String }, // Cloudinary URL
+    accountType: { type: String, enum: ["freelancer", "client"], required: true },
 
-module.exports = mongoose.model("User", userSchema);
+    // ✅ Freelancer-specific fields
+    professionalTitle: { type: String },
+    bio: { type: String },
+    skills: [{ type: String }],
+    gigs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Gig" }], // Only for freelancers
+  },
+  { timestamps: true }
+);
+
+export default mongoose.model("User", UserSchema);
