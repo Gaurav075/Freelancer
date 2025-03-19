@@ -5,9 +5,18 @@ const AccountTypeSelection = () => {
   const navigate = useNavigate();
   const [selected, setSelected] = useState('');
 
-  const handleSelection = (type) => {
+  const handleSelection = async (type) => {
     setSelected(type);
-    setTimeout(() => navigate(`/setup-profile?type=${type}`), 500);
+    localStorage.setItem("accountType", type);
+
+    // ✅ Navigate to the next step in the signup flow
+    setTimeout(() => {
+      if (type === "Freelancer") {
+        navigate("/setup-profile");  // Freelancer Profile Setup Page
+      } else {
+        navigate("/client-profile-setup");  // Client Profile Setup Page
+      }
+    }, 500);
   };
 
   return (
@@ -35,7 +44,7 @@ const AccountTypeSelection = () => {
         <div
           className={`p-8 bg-white rounded-2xl shadow-xl transform transition-all duration-300 cursor-pointer hover:scale-105 
           ${selected === "Client" ? "border-4 border-purple-500 scale-110" : ""}`}
-          onClick={() => navigate('/client-profile-setup')}
+          onClick={() => handleSelection("Client")}
         >
           <h2 className="text-2xl font-bold text-center text-purple-600">Hire a Freelancer</h2>
           <p className="text-gray-600 mt-2 text-center">

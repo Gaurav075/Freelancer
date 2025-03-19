@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
+import fs from "fs";
 
 dotenv.config();
 
@@ -10,9 +11,28 @@ cloudinary.config({
 });
 
 /** ✅ Function to Upload Files to Cloudinary */
-export const uploadToCloudinary = async (filePath, folder = "user_uploads") => {
+export const uploadToCloudinary = async (filePath, folder = "user_uploads", fileType = "") => {
   try {
-    const result = await cloudinary.uploader.upload(filePath, { folder });
+    if (!fileType) {
+      console.error("❌ File type is missing. Defaulting to 'image'.");
+      fileType = "image/png"; // Default to image if undefined
+    }
+
+    console.log(`🟢 Uploading file: ${filePath} as ${fileType}`);
+
+    // ✅ Determine Resource Type (Image or Video)
+    const resourceType = fileType.startsWith("video/") ? "video" : "image";
+
+    const result = await cloudinary.uploader.upload(filePath, {
+      folder,
+      resource_type: resourceType, // ✅ Set correct type
+    });
+
+    console.log(`✅ Upload Successful: ${result.secure_url}`);
+
+    // ✅ Remove File from Server After Upload
+    fs.unlinkSync(filePath);
+
     return result.secure_url;
   } catch (err) {
     console.error("❌ Cloudinary Upload Error:", err);
@@ -20,4 +40,4 @@ export const uploadToCloudinary = async (filePath, folder = "user_uploads") => {
   }
 };
 
-export default cloudinary; // Exporting Cloudinary instance for direct use
+export default cloudinary;
