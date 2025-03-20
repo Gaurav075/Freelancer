@@ -4,6 +4,7 @@ import cors from "cors";
 import connectDB from "./db/index.js"; // ✅ Import DB Connection
 import authRoutes from "./routes/authRoutes.js"; // ✅ Import Auth Routes
 import userRoutes from "./routes/userRoutes.js"; // ✅ Import User Routes
+import gigRoutes from "./routes/gigRoutes.js"; // ✅ Import Gig Routes
 
 dotenv.config(); // ✅ Load environment variables
 
@@ -57,3 +58,4 @@ connectDB()
 // ✅ Routes
 app.use("/api/auth", authRoutes); // Authentication Routes
 app.use("/api/user", userRoutes); // User Management Routes
+app.use("/api/gigs", gigRoutes); // Gig Management Routes

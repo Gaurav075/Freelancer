@@ -15,6 +15,8 @@ import ClientProfileSetup from './pages/ClientProfileSetup'
 import ClientDashboard from './pages/ClientDashboard'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/Resetpassword'
+import GigDetails from './pages/GigDetails'
+import EditGig from './pages/EditGig'
 function App() {
 
   return (
@@ -33,6 +35,9 @@ function App() {
           <Route path='/client-dashboard' element={<ClientDashboard/>}/>
           <Route path='/forgot-password' element={<ForgotPassword/>}/>
           <Route path='/reset-password/:token' element={<ResetPassword/>}/>
+          <Route path='/gig/:gigId' element={<GigDetails/>}/>
+          <Route path='/edit-gig/:gigId' element={<EditGig/>}/>
+
         </Routes>
       </Router>
       

@@ -1,37 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Chat from './Chat';
+
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [showProfile, setShowProfile] = useState(false); // Controls profile screen visibility
+  const [showProfile, setShowProfile] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [gigs, setGigs] = useState([]);
 
-  const [gigs, setGigs] = useState([
-    {
-      id: 1,
-      title: "Web Development",
-      category: "Programming & Tech",
-      price: 100,
-      deliveryTime: "3 days",
-      image: "./flexible.png",
-    },
-    {
-      id: 2,
-      title: "Graphic Design",
-      category: "Design & Creative",
-      price: 80,
-      deliveryTime: "2 days",
-      image: "https://source.unsplash.com/300x200/?graphic,design",
-    },
-    {
-      id: 3,
-      title: "SEO Optimization",
-      category: "Digital Marketing",
-      price: 120,
-      deliveryTime: "5 days",
-      image: "https://source.unsplash.com/300x200/?seo,marketing",
-    },
-  ]);
+  // ✅ Fetch Gigs from Backend when Dashboard Loads
+  useEffect(() => {
+    const fetchGigs = async () => {
+      try {
+        const token = localStorage.getItem("token"); // ✅ Get token for authentication
+        const response = await fetch("https://animated-engine-69v4xxvpw45355j9-5001.app.github.dev/api/gigs/my-gigs", {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch gigs");
+        }
+
+        const data = await response.json();
+        setGigs(data.gigs); // ✅ Store fetched gigs in state
+      } catch (error) {
+        console.error("Error fetching gigs:", error);
+      }
+    };
+
+    fetchGigs();
+  }, []);
 
   return (
     <div className="fixed inset-0 flex flex-col bg-gray-900 text-white">
@@ -45,7 +47,6 @@ const Dashboard = () => {
           >
             + Create Gig
           </button>
-          {/* Profile Icon - Opens Profile Settings */}
           <div 
             className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center cursor-pointer"
             onClick={() => setShowProfile(true)}
@@ -57,20 +58,28 @@ const Dashboard = () => {
 
       {/* Gigs Grid */}
       <div className="flex-grow p-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full">
-          {gigs.map((gig) => (
-            <div key={gig.id} className="bg-gray-800 p-5 rounded-lg shadow-lg">
-              <img src={gig.image} alt={gig.title} className="w-full h-40 object-cover rounded-md mb-4" />
-              <h3 className="text-lg font-semibold text-blue-300">{gig.title}</h3>
-              <p className="text-gray-400">{gig.category}</p>
-              <p className="text-green-400 font-bold">${gig.price}</p>
-              <p className="text-gray-300">Delivery Time: {gig.deliveryTime}</p>
-            </div>
-          ))}
-        </div>
+        {gigs.length === 0 ? (
+          <p className="text-center text-gray-400">No gigs created yet. Click on "Create Gig" to add one.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full">
+            {gigs.map((gig) => (
+              <div 
+                key={gig._id} 
+                className="bg-gray-800 p-5 rounded-lg shadow-lg cursor-pointer hover:scale-105 transition"
+                onClick={() => navigate(`/gig/${gig._id}`)} // ✅ Navigate to Gig Details
+              >
+                <img src={gig.thumbnail} alt={gig.title} className="w-full h-40 object-cover rounded-md mb-4" />
+                <h3 className="text-lg font-semibold text-blue-300">{gig.title}</h3>
+                <p className="text-gray-400">{gig.category}</p>
+                <p className="text-green-400 font-bold">${gig.price}</p>
+                <p className="text-gray-300">Delivery Time: {gig.deliveryTime}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Profile Settings Screen */}
+      {/* Profile Settings */}
       {showProfile && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-96">
@@ -87,16 +96,11 @@ const Dashboard = () => {
             <label className="block mb-2">Profile Picture:</label>
             <input type="file" className="w-full p-2 mb-4 rounded bg-gray-700 text-white" />
 
-            <button 
-              className="w-full bg-blue-600 text-black py-2 rounded-lg hover:bg-blue-700 transition"
-            >
+            <button className="w-full bg-blue-600 text-black py-2 rounded-lg hover:bg-blue-700 transition">
               Save Changes
             </button>
 
-            <button 
-              onClick={() => setShowProfile(false)}
-              className="w-full mt-2 bg-red-600 text-black py-2 rounded-lg hover:bg-red-700 transition"
-            >
+            <button onClick={() => setShowProfile(false)} className="w-full mt-2 bg-red-600 text-black py-2 rounded-lg hover:bg-red-700 transition">
               Close
             </button>
           </div>
@@ -105,13 +109,13 @@ const Dashboard = () => {
 
       {/* Floating Chat Button */}
       <button 
-        onClick={() => setShowChat(!showChat)} // Toggles chat on click
+        onClick={() => setShowChat(!showChat)}
         className="fixed bottom-6 right-6 bg-blue-600 w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white text-2xl hover:bg-blue-700"
       >
         💬
       </button>
 
-      {/* Chat Window - Shows when showChat is true */}
+      {/* Chat Window */}
       {showChat && <Chat onClose={() => setShowChat(false)} />}
     </div>
   );
