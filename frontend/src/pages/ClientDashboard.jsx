@@ -1,41 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { FaUser, FaCommentDots, FaTimes } from "react-icons/fa";
 
 const ClientDashboard = () => {
   const navigate = useNavigate();
   const [showProfilePopup, setShowProfilePopup] = useState(false);
+  const [freelancerGigs, setFreelancerGigs] = useState([]);
 
-  // Mock freelancer gigs (Replace with backend data later)
-  const [freelancerGigs] = useState([
-    {
-      id: 1,
-      title: "Web Development",
-      category: "Programming & Tech",
-      price: 100,
-      deliveryTime: "3 days",
-      freelancer: "John Doe",
-      image: "https://source.unsplash.com/300x200/?developer,web",
-    },
-    {
-      id: 2,
-      title: "Graphic Design",
-      category: "Design & Creative",
-      price: 80,
-      deliveryTime: "2 days",
-      freelancer: "Sarah Lee",
-      image: "https://source.unsplash.com/300x200/?graphic,design",
-    },
-    {
-      id: 3,
-      title: "SEO Optimization",
-      category: "Digital Marketing",
-      price: 120,
-      deliveryTime: "5 days",
-      freelancer: "Michael Smith",
-      image: "https://source.unsplash.com/300x200/?seo,marketing",
-    },
-  ]);
+  // ✅ Fetch Gigs from Backend
+  useEffect(() => {
+    const fetchGigs = async () => {
+      try {
+        const response = await axios.get("https://animated-engine-69v4xxvpw45355j9-5001.app.github.dev/gigs");
+        setFreelancerGigs(response.data);
+      } catch (error) {
+        console.error("❌ Error fetching gigs:", error);
+      }
+    };
+    fetchGigs();
+  }, []);
+
+  // ✅ Navigate to Gig Details
+  const handleGigClick = (id) => {
+    navigate(`/gigs/${id}`);
+  };
 
   return (
     <div className="fixed inset-0 flex flex-col bg-gray-900 text-white">
@@ -51,7 +40,7 @@ const ClientDashboard = () => {
             <FaCommentDots className="text-white text-2xl" />
           </button>
 
-          {/* Profile Icon - Click to Open Profile Popup */}
+          {/* Profile Icon */}
           <div
             className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center cursor-pointer hover:bg-gray-600 transition"
             onClick={() => setShowProfilePopup(true)}
@@ -61,7 +50,7 @@ const ClientDashboard = () => {
         </div>
       </nav>
 
-      {/* Profile Popup Modal (Styled like FreelancerDashboard) */}
+      {/* Profile Popup Modal */}
       {showProfilePopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-xl w-96">
@@ -99,26 +88,24 @@ const ClientDashboard = () => {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col items-center justify-center w-full p-6">
-        <h2 className="text-3xl font-bold mb-6">Available Freelancers</h2>
+        <h2 className="text-3xl font-bold mb-6">Available Gigs</h2>
 
         {freelancerGigs.length === 0 ? (
           <p className="text-gray-400">No gigs available at the moment.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-6xl">
             {freelancerGigs.map((gig) => (
-              <div key={gig.id} className="bg-gray-800 p-5 rounded-lg shadow-lg">
-                {/* Thumbnail Image */}
-                <img src={gig.image} alt={gig.title} className="w-full h-40 object-cover rounded-md mb-4" />
+              <div
+                key={gig._id}
+                className="bg-gray-800 p-5 rounded-lg shadow-lg cursor-pointer hover:bg-gray-700 transition"
+                onClick={() => handleGigClick(gig._id)}
+              >
+                <img src={gig.thumbnail} alt={gig.title} className="w-full h-40 object-cover rounded-md mb-4" />
                 <h3 className="text-lg font-semibold text-blue-300">{gig.title}</h3>
                 <p className="text-gray-400">{gig.category}</p>
                 <p className="text-green-400 font-bold">${gig.price}</p>
                 <p className="text-gray-300">Delivery Time: {gig.deliveryTime}</p>
-                <p className="text-gray-500 italic">By {gig.freelancer}</p>
-
-                {/* Hire Button */}
-                <button className="w-full bg-blue-600 text-black font-bold py-2 rounded-lg hover:bg-blue-700 transition mt-4">
-                  Hire {gig.freelancer}
-                </button>
+                <p className="text-gray-500 italic">By {gig.freelancerName}</p>
               </div>
             ))}
           </div>

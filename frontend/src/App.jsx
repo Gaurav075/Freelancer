@@ -17,6 +17,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/Resetpassword'
 import GigDetails from './pages/GigDetails'
 import EditGig from './pages/EditGig'
+import UpdateProfile from './pages/UpdateProfile'
 function App() {
 
   return (
@@ -37,6 +38,7 @@ function App() {
           <Route path='/reset-password/:token' element={<ResetPassword/>}/>
           <Route path='/gig/:gigId' element={<GigDetails/>}/>
           <Route path='/edit-gig/:gigId' element={<EditGig/>}/>
+          <Route path='/update-profile' element={<UpdateProfile/>}/>
 
         </Routes>
       </Router>

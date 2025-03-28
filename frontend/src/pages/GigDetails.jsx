@@ -56,7 +56,7 @@ const GigDetails = () => {
         <h1 className="text-3xl font-extrabold text-blue-400 tracking-wide">FreelancerHub</h1>
         <button 
           onClick={() => navigate("/dashboard")}
-          className="bg-gray-600 px-5 py-2 rounded-lg font-bold hover:bg-gray-700 transition"
+          className="bg-gray-600 px-5 py-2 rounded-lg text-black font-bold hover:bg-gray-700 transition"
         >
           Back to Dashboard
         </button>
@@ -118,7 +118,7 @@ const GigDetails = () => {
             {/* Edit Gig Button */}
             <button
               onClick={() => navigate(`/edit-gig/${gigId}`)}
-              className="mt-6 w-full bg-blue-600 px-5 py-2 rounded-lg font-bold hover:bg-blue-700 transition"
+              className="mt-6 w-full bg-blue-600 px-5 py-2 text-black rounded-lg font-bold hover:bg-blue-700 transition"
             >
               Edit Gig
             </button>
